@@ -1,18 +1,18 @@
-/* =========================================================
-   GLOBAL STATE
-========================================================= */
 let autoRecalc = true;
 
-/* =========================================================
-   UTILITY
-========================================================= */
+/* ---------- Helpers ---------- */
 function round(v, d = 2) {
-  return Math.round(v * Math.pow(10, d)) / Math.pow(10, d);
+  return Math.round(v * 10 ** d) / 10 ** d;
 }
 
-/* =========================================================
-   MODE & DERIVED VALUES
-========================================================= */
+function normalizeToGallons(value, unit) {
+  if (unit === "fl oz") return value / 128;
+  if (unit === "qt") return value / 4;
+  if (unit === "gal") return value;
+  return value; // dry units
+}
+
+/* ---------- Mode ---------- */
 function resolveMode(acres, gallons) {
   if (acres > 0) return "ACRES MODE";
   if (gallons > 0) return "GALLONS MODE";
@@ -25,171 +25,110 @@ function getDerivedAcres(acres, gallons, gpa) {
   return 0;
 }
 
-function getGallonsOfMix(acres, gallons, gpa) {
+function getMixGallons(acres, gallons, gpa) {
   if (acres > 0) return acres * gpa;
   if (gallons > 0) return gallons;
   return 0;
 }
 
-/* =========================================================
-   CORE RATE CALCULATION
-========================================================= */
-function calculateAmount({ rate, unit, basis, acres, gallons }) {
-  let base;
-
-  if (basis === "acre") {
-    base = rate * acres;
-  } else {
-    base = (gallons / 100) * rate;
-  }
-
-  // liquid fl oz → gallons
-  if (unit === "fl oz") {
-    return round(base / 128);
-  }
-
-  return round(base);
-}
-
-/* =========================================================
-   AMS (51-lb bags, half increments)
-========================================================= */
+/* ---------- AMS ---------- */
 function amsBags(lbs) {
   return Math.round((lbs / 51) * 2) / 2;
 }
 
-/* =========================================================
-   CASCADING JUG LOGIC
-   startSize = 2.5 or 1
-========================================================= */
-function cascadeJugs(gallons, startSize) {
+/* ---------- Jug Cascade ---------- */
+function cascadeJugs(gallons, start) {
   let flOz = gallons * 128;
-  const lines = [];
+  const out = [];
 
-  // 2.5 gal jugs (320 fl oz)
-  if (startSize === 2.5) {
-    const j25 = Math.floor(flOz / 320);
-    if (j25 > 0) {
-      lines.push(`${j25} × 2.5g`);
-      flOz -= j25 * 320;
-    }
+  if (start === 2.5) {
+    const j = Math.floor(flOz / 320);
+    if (j) { out.push(`${j} × 2.5g`); flOz -= j * 320; }
   }
 
-  // 1 gal jugs (128 fl oz)
   const j1 = Math.floor(flOz / 128);
-  if (j1 > 0) {
-    lines.push(`${j1} × 1g`);
-    flOz -= j1 * 128;
-  }
+  if (j1) { out.push(`${j1} × 1g`); flOz -= j1 * 128; }
 
-  // remainder fl oz
   flOz = Math.round(flOz);
-  if (flOz > 0) {
-    lines.push(`${flOz} fl oz`);
-  }
+  if (flOz) out.push(`${flOz} fl oz`);
 
-  return lines.join("<br>");
+  return out.join("<br>");
 }
 
-/* =========================================================
-   DOM REFERENCES
-========================================================= */
-const acresEl = document.getElementById("acres");
-const gallonsEl = document.getElementById("gallons");
-const gpaEl = document.getElementById("gpa");
-
-const modeEl = document.getElementById("mode");
-const mixGallonsEl = document.getElementById("mixGallons");
-const derivedAcresEl = document.getElementById("derivedAcres");
-
-const rowsEl = document.getElementById("rows");
+/* ---------- DOM ---------- */
+const acresEl = acres;
+const gallonsEl = gallons;
+const gpaEl = gpa;
+const modeEl = mode;
+const mixGallonsEl = mixGallons;
+const derivedAcresEl = derivedAcres;
+const rowsEl = rows;
 const mixSelect = document.getElementById("mixSelect");
-const mixNameEl = document.getElementById("mixName");
-const autoBtn = document.getElementById("autoBtn");
+const sheetUrlEl = document.getElementById("sheetUrl");
+const autoBtn = autoBtn;
 
-/* =========================================================
-   AUTO RECALC TOGGLE
-========================================================= */
-function updateAutoBtn() {
-  if (autoRecalc) {
-    autoBtn.style.background = "#2e7d32"; // green
-    autoBtn.style.color = "#fff";
-    autoBtn.textContent = "Auto-Recalculate: ON";
-  } else {
-    autoBtn.style.background = "#c62828"; // red
-    autoBtn.style.color = "#fff";
-    autoBtn.textContent = "Auto-Recalculate: OFF";
-  }
-}
-
+/* ---------- Auto Recalc ---------- */
 function toggleAutoRecalc() {
   autoRecalc = !autoRecalc;
-  updateAutoBtn();
+  autoBtn.textContent = autoRecalc ? "Auto‑Recalculate: ON" : "Auto‑Recalculate: OFF";
+  autoBtn.style.background = autoRecalc ? "#2e7d32" : "#c62828";
+  autoBtn.style.color = "#fff";
   if (autoRecalc) recalc();
 }
 
-/* =========================================================
-   ROW MANAGEMENT
-========================================================= */
+/* ---------- Rows ---------- */
 function addRow(data = {}) {
   const tr = document.createElement("tr");
-
   tr.innerHTML = `
-    <td><input value="${data.name || ""}" oninput="if(autoRecalc) recalc()"></td>
-
-    <td><input type="number" step="0.01"
-               value="${data.rate || ""}"
-               oninput="if(autoRecalc) recalc()"></td>
-
+    <td><input value="${data.name||""}" oninput="if(autoRecalc) recalc()"></td>
+    <td><input type="number" step="0.01" value="${data.rate||""}" oninput="if(autoRecalc) recalc()"></td>
     <td>
       <select onchange="if(autoRecalc) recalc()">
-        <option ${data.unit === "fl oz" ? "selected" : ""}>fl oz</option>
-        <option ${data.unit === "oz" ? "selected" : ""}>oz</option>
-        <option ${data.unit === "lbs" ? "selected" : ""}>lbs</option>
-        <option ${data.unit === "gal" ? "selected" : ""}>gal</option>
+        <option ${data.unit==="fl oz"?"selected":""}>fl oz</option>
+        <option ${data.unit==="qt"?"selected":""}>qt</option>
+        <option ${data.unit==="gal"?"selected":""}>gal</option>
+        <option ${data.unit==="lbs"?"selected":""}>lbs</option>
       </select>
     </td>
-
     <td>
       <select onchange="if(autoRecalc) recalc()">
-        <option value="acre" ${data.basis === "acre" ? "selected" : ""}>per acre</option>
-        <option value="100" ${data.basis === "100" ? "selected" : ""}>per 100 gal</option>
+        <option value="acre" ${data.basis==="acre"?"selected":""}>per acre</option>
+        <option value="100" ${data.basis==="100"?"selected":""}>per 100 gal</option>
       </select>
     </td>
-
     <td>
       <select onchange="if(autoRecalc) recalc()">
         <option value="">none</option>
-        <option value="2.5" ${data.jug === "2.5" ? "selected" : ""}>2.5 gal</option>
-        <option value="1" ${data.jug === "1" ? "selected" : ""}>1 gal</option>
+        <option value="2.5" ${data.jug==="2.5"?"selected":""}>2.5 gal</option>
+        <option value="1" ${data.jug==="1"?"selected":""}>1 gal</option>
       </select>
     </td>
-
     <td class="output"></td>
     <td class="output"></td>
   `;
-
   rowsEl.appendChild(tr);
 }
 
-/* =========================================================
-   MAIN RECALC
-========================================================= */
+function removeLastRow() {
+  if (rowsEl.children.length) rowsEl.removeChild(rowsEl.lastElementChild);
+  if (autoRecalc) recalc();
+}
+
+/* ---------- Recalc ---------- */
 function recalc() {
-  const inputAcres = +acresEl.value;
-  const inputGallons = +gallonsEl.value;
+  const acres = +acresEl.value;
+  const gallons = +gallonsEl.value;
   const gpa = +gpaEl.value;
 
-  // soft lock
-  acresEl.disabled = inputGallons > 0;
-  gallonsEl.disabled = inputAcres > 0;
+  acresEl.disabled = gallons > 0;
+  gallonsEl.disabled = acres > 0;
 
-  const derivedAcres = getDerivedAcres(inputAcres, inputGallons, gpa);
-  const mixGallons = getGallonsOfMix(inputAcres, inputGallons, gpa);
+  const derived = getDerivedAcres(acres, gallons, gpa);
+  const mixGal = getMixGallons(acres, gallons, gpa);
 
-  modeEl.textContent = resolveMode(inputAcres, inputGallons);
-  mixGallonsEl.value = mixGallons ? round(mixGallons) : "";
-  derivedAcresEl.value = derivedAcres ? round(derivedAcres) : "";
+  derivedAcresEl.value = derived ? round(derived) : "";
+  mixGallonsEl.value = mixGal ? round(mixGal) : "";
+  modeEl.textContent = resolveMode(acres, gallons);
 
   [...rowsEl.children].forEach(row => {
     const name = row.children[0].querySelector("input").value.toLowerCase();
@@ -198,139 +137,90 @@ function recalc() {
     const basis = row.children[3].querySelector("select").value;
     const jug = row.children[4].querySelector("select").value;
 
-    if (!rate || !mixGallons || !gpa) {
+    if (!rate || !gpa || !mixGal) {
       row.children[5].textContent = "";
       row.children[6].innerHTML = "";
       return;
     }
 
-    const amount = calculateAmount({
-      rate,
-      unit,
-      basis,
-      acres: derivedAcres,
-      gallons: mixGallons
-    });
+    const base = basis === "acre"
+      ? rate * derived
+      : rate * (mixGal / 100);
 
-    row.children[5].textContent = amount;
+    const amt = normalizeToGallons(base, unit);
 
-    // AMS handling
+    row.children[5].textContent = round(amt);
+
     if (unit === "lbs" && name.includes("ams")) {
-      row.children[6].textContent = `${amsBags(amount)} bags`;
-      return;
-    }
-
-    // cascading jug logic (liquid only)
-    if (jug && unit === "fl oz") {
-      row.children[6].innerHTML = cascadeJugs(
-        amount,
-        parseFloat(jug)
-      );
+      row.children[6].textContent = `${amsBags(amt)} bags`;
+    } else if (jug && unit !== "lbs") {
+      row.children[6].innerHTML = cascadeJugs(amt, parseFloat(jug));
     } else {
       row.children[6].innerHTML = "";
     }
   });
 }
 
-/* =========================================================
-   SAVE / LOAD MIXES
-========================================================= */
-function refreshMixList() {
-  mixSelect.innerHTML = "";
-  Object.keys(localStorage)
-    .filter(k => k.startsWith("mix_"))
-    .forEach(k => {
-      const opt = document.createElement("option");
-      opt.textContent = k.replace("mix_", "");
-      mixSelect.appendChild(opt);
-    });
+/* ---------- Google Sheet Sync ---------- */
+async function syncFromSheet() {
+  const url = sheetUrlEl.value.trim();
+  if (!url) { alert("Enter a Google Sheet URL first"); return; }
+
+  localStorage.setItem("sheetUrl", url);
+
+  const res = await fetch(url);
+  const data = await res.json();
+
+  const index = [];
+
+  data.mixes.forEach(m => {
+    localStorage.setItem("mix_" + m.mixId, JSON.stringify(m));
+    index.push({ mixId: m.mixId, mixName: m.mixName });
+  });
+
+  localStorage.setItem("mixIndex", JSON.stringify(index));
+  refreshMixList();
+  alert(`Imported ${index.length} mixes`);
 }
 
-function saveMix() {
-  const name = mixNameEl.value || mixSelect.value;
-  if (!name) return;
-
-  const rows = [...rowsEl.children].map(r => ({
-    name: r.children[0].querySelector("input").value,
-    rate: r.children[1].querySelector("input").value,
-    unit: r.children[2].querySelector("select").value,
-    basis: r.children[3].querySelector("select").value,
-    jug: r.children[4].querySelector("select").value
-  }));
-
-  localStorage.setItem("mix_" + name, JSON.stringify(rows));
-  refreshMixList();
+function refreshMixList() {
+  mixSelect.innerHTML = "";
+  const index = JSON.parse(localStorage.getItem("mixIndex")||"[]");
+  index.forEach(m => {
+    const o = document.createElement("option");
+    o.value = m.mixId;
+    o.textContent = m.mixName;
+    mixSelect.appendChild(o);
+  });
 }
 
 function deleteMix() {
-  if (!mixSelect.value) return;
-  localStorage.removeItem("mix_" + mixSelect.value);
+  const id = mixSelect.value;
+  if (!id) return;
+  localStorage.removeItem("mix_" + id);
+  localStorage.setItem("mixIndex",
+    JSON.stringify(JSON.parse(localStorage.getItem("mixIndex")||"[]")
+      .filter(m => m.mixId !== id))
+  );
   refreshMixList();
 }
 
-mixSelect.addEventListener("change", () => {
-  const data = JSON.parse(localStorage.getItem("mix_" + mixSelect.value));
+mixSelect.onchange = () => {
+  const m = JSON.parse(localStorage.getItem("mix_" + mixSelect.value));
+  if (!m) return;
+
+  gpaEl.value = m.gpa || "";
+  acresEl.value = m.acresToMix || "";
+  gallonsEl.value = m.gallonsToLoad || "";
+
   rowsEl.innerHTML = "";
-  data.forEach(addRow);
+  m.ingredients.forEach(addRow);
   recalc();
-});
+};
 
-/* =========================================================
-   EVENTS
-========================================================= */
-[acresEl, gallonsEl, gpaEl].forEach(el =>
-  el.addEventListener("input", recalc)
-);
-
-/* =========================================================
-   INIT
-========================================================= */
-updateAutoBtn();
+/* ---------- Init ---------- */
+sheetUrlEl.value = localStorage.getItem("sheetUrl") || "";
+toggleAutoRecalc();
 addRow();
 refreshMixList();
 recalc();
-
-
-function exportCSV() {
-  let csv = "Name,Rate,Unit,Basis,Jug\n";
-
-  [...rowsEl.children].forEach(r => {
-    const vals = [
-      r.children[0].querySelector("input").value,
-      r.children[1].querySelector("input").value,
-      r.children[2].querySelector("select").value,
-      r.children[3].querySelector("select").value,
-      r.children[4].querySelector("select").value
-    ];
-    csv += vals.join(",") + "\n";
-  });
-
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "tank-mix.csv";
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function importCSV(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = () => {
-    const lines = reader.result.split("\n").slice(1);
-    rowsEl.innerHTML = "";
-
-    lines.forEach(line => {
-      if (!line.trim()) return;
-      const [name, rate, unit, basis, jug] = line.split(",");
-      addRow({ name, rate, unit, basis, jug });
-    });
-
-    recalc();
-  };
-  reader.readAsText(file);
-}

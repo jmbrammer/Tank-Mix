@@ -27,8 +27,6 @@
 
   .readonly { background-color: #f3f3f3; }
 
-  /* ---------- TABLE ---------- */
-
   table {
     width: 100%;
     border-collapse: collapse;
@@ -49,16 +47,15 @@
 
   tbody tr:nth-child(odd) { background: #fafafa; }
   tbody tr:nth-child(even) { background: #f0f0f0; }
+
   tbody tr:hover { background: #e8f4ff; }
 
   .output { font-weight: bold; }
 
-  /* ---------- iPHONE NARROW ---------- */
-
   @media (max-width: 480px) {
     .row { flex-direction: column; }
 
-    table, thead, tbody, th, td, tr {
+    table, thead, tbody, tr, th, td {
       display: block;
       width: 100%;
     }
@@ -68,15 +65,14 @@
     tbody tr {
       border: 1px solid #ccc;
       border-radius: 6px;
-      margin-bottom: 12px;
       padding: 10px;
+      margin-bottom: 12px;
       background: white;
     }
 
     tbody td {
       border: none;
       text-align: left;
-      padding: 6px 0;
     }
 
     tbody td::before {
@@ -99,7 +95,7 @@
 
 <h2>Tank Mix Calculator</h2>
 
-<!-- ROW 1: INPUTS -->
+<!-- INPUT ROW -->
 <div class="row">
   <div class="box">
     <label>Acres to Mix</label>
@@ -117,7 +113,7 @@
   </div>
 </div>
 
-<!-- ROW 2: DERIVED -->
+<!-- DERIVED ROW -->
 <div class="row">
   <div class="box">
     <label>Gallons to Mix</label>
@@ -129,7 +125,7 @@
     <input id="derivedAcres" class="readonly" disabled>
   </div>
 
-  <div class="box"><!-- spacer for alignment --></div>
+  <div class="box"></div>
 </div>
 
 <div><strong>Mode:</strong> <span id="mode"></span></div>
@@ -151,38 +147,39 @@
   <tbody id="rows"></tbody>
 </table>
 
-<button onclick="addRow()">Add Ingredient</button>
+<div class="row">
+  <div class="box"><button onclick="addRow()">Add Ingredient</button></div>
+  <div class="box"><button onclick="removeLastRow()">Remove Last</button></div>
+  <div class="box"></div>
+</div>
 
 <div style="margin:16px 0;">
   <button id="autoBtn" onclick="toggleAutoRecalc()">Auto‑Recalculate: ON</button>
+</div>
+
+<h3>Google Sheet Sync</h3>
+
+<div class="row">
+  <div class="box">
+    <label>Google Sheet Web App URL</label>
+    <input id="sheetUrl" placeholder="Paste Apps Script URL here">
+  </div>
+  <div class="box">
+    <button onclick="syncFromSheet()">Sync from Sheet</button>
+  </div>
 </div>
 
 <h3>Saved Mixes</h3>
 
 <div class="row">
   <div class="box"><select id="mixSelect"></select></div>
-  <div class="box"><input id="mixName" placeholder="New mix name"></div>
   <div class="box"></div>
 </div>
 
-<div class="row">
-  <div class="box"><button onclick="saveMix()">Save / Update</button></div>
-  <div class="box"><button onclick="deleteMix()">Delete</button></div>
-  <div class="box"></div>
-</div>
+<button onclick="deleteMix()">Delete Selected Mix</button>
 
-<h3>Excel Import / Export</h3>
-
-<div class="row">
-  <div class="box"><button onclick="exportCSV()">Export CSV</button></div>
-  <div class="box"><input type="file" accept=".csv" onchange="importCSV(event)"></div>
-  <div class="box"></div>
-</div>
-
-<!-- ✅ LOAD APP LOGIC -->
 <script src="app.js"></script>
 
-<!-- ✅ SERVICE WORKER -->
 <script>
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("service-worker.js");
