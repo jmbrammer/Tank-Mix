@@ -6,15 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    padding: 16px;
-  }
-
-  h2, h3 {
-    margin-top: 20px;
-    margin-bottom: 8px;
-  }
+  body { font-family: Arial, sans-serif; padding: 16px; }
+  h2, h3 { margin: 20px 0 8px; }
 
   .row {
     display: flex;
@@ -22,9 +15,7 @@
     margin-bottom: 12px;
   }
 
-  .box {
-    flex: 1;
-  }
+  .box { flex: 1; }
 
   input, select, button {
     width: 100%;
@@ -32,16 +23,9 @@
     font-size: 16px;
   }
 
-  button {
-    cursor: pointer;
-    font-weight: bold;
-  }
+  button { font-weight: bold; cursor: pointer; }
 
-  .readonly {
-    background-color: #f3f3f3;
-  }
-
-  /* ---------- DESKTOP / TABLET TABLE ---------- */
+  .readonly { background: #f3f3f3; }
 
   table {
     width: 100%;
@@ -50,60 +34,40 @@
   }
 
   thead th {
-    background-color: #e5e5e5;
-    font-weight: bold;
-    padding: 10px 6px;
+    background: #e5e5e5;
     border: 1px solid #bbb;
+    padding: 10px 6px;
   }
 
   tbody td {
     border: 1px solid #ccc;
     padding: 10px 6px;
-    vertical-align: middle;
     text-align: center;
   }
 
-  tbody tr:nth-child(odd) { background-color: #fafafa; }
-  tbody tr:nth-child(even) { background-color: #f0f0f0; }
+  tbody tr:nth-child(odd) { background: #fafafa; }
+  tbody tr:nth-child(even) { background: #f0f0f0; }
 
-  tbody tr:hover { background-color: #e8f4ff; }
+  tbody tr:hover { background: #e8f4ff; }
 
-  .output {
-    font-weight: bold;
-  }
-
-  /* Column widths */
-  th:nth-child(1), td:nth-child(1) { width: 20%; }
-  th:nth-child(2), td:nth-child(2) { width: 10%; }
-  th:nth-child(3), td:nth-child(3) { width: 10%; }
-  th:nth-child(4), td:nth-child(4) { width: 14%; }
-  th:nth-child(5), td:nth-child(5) { width: 12%; }
-  th:nth-child(6), td:nth-child(6) { width: 14%; }
-  th:nth-child(7), td:nth-child(7) { width: 20%; }
-
-  /* ---------- iPHONE NARROW LAYOUT ---------- */
+  .output { font-weight: bold; }
 
   @media (max-width: 480px) {
-
-    .row {
-      flex-direction: column;
-    }
+    .row { flex-direction: column; }
 
     table, thead, tbody, th, td, tr {
       display: block;
       width: 100%;
     }
 
-    thead {
-      display: none;
-    }
+    thead { display: none; }
 
     tbody tr {
-      background: #ffffff;
       border: 1px solid #ccc;
       border-radius: 6px;
       margin-bottom: 12px;
       padding: 10px;
+      background: white;
     }
 
     tbody td {
@@ -115,7 +79,6 @@
     tbody td::before {
       font-weight: bold;
       display: block;
-      margin-bottom: 2px;
     }
 
     tbody td:nth-child(1)::before { content: "Name"; }
@@ -125,10 +88,6 @@
     tbody td:nth-child(5)::before { content: "Jug"; }
     tbody td:nth-child(6)::before { content: "Amount"; }
     tbody td:nth-child(7)::before { content: "Breakdown"; }
-
-    tbody tr:hover {
-      background-color: #ffffff;
-    }
   }
 </style>
 </head>
@@ -137,18 +96,15 @@
 
 <h2>Tank Mix Calculator</h2>
 
-<!-- INPUT GRID -->
 <div class="row">
   <div class="box">
     <label>GPA</label>
     <input id="gpa" type="number" step="0.01">
   </div>
-
   <div class="box">
     <label>Acres to Mix</label>
     <input id="acres" type="number" step="0.01">
   </div>
-
   <div class="box">
     <label>Gallons to Load</label>
     <input id="gallons" type="number" step="0.01">
@@ -160,20 +116,14 @@
     <label>Gallons to Mix</label>
     <input id="mixGallons" class="readonly" disabled>
   </div>
-
   <div class="box">
     <label>Acres to Load</label>
     <input id="derivedAcres" class="readonly" disabled>
   </div>
-
-  <div class="box">
-    <!-- spacer to keep columns aligned -->
-  </div>
+  <div class="box"></div>
 </div>
 
-<div>
-  <strong>Mode:</strong> <span id="mode"></span>
-</div>
+<div><strong>Mode:</strong> <span id="mode"></span></div>
 
 <h3>Ingredients</h3>
 
@@ -201,45 +151,28 @@
 <h3>Saved Mixes</h3>
 
 <div class="row">
-  <div class="box">
-    <select id="mixSelect"></select>
-  </div>
-
-  <div class="box">
-    <input id="mixName" placeholder="New mix name">
-  </div>
-
-  <div class="box">
-    <!-- spacer -->
-  </div>
+  <div class="box"><select id="mixSelect"></select></div>
+  <div class="box"><input id="mixName" placeholder="New mix name"></div>
+  <div class="box"></div>
 </div>
 
 <div class="row">
-  <div class="box">
-    <button onclick="saveMix()">Save / Update</button>
-  </div>
-  <div class="box">
-    <button onclick="deleteMix()">Delete</button>
-  </div>
+  <div class="box"><button onclick="saveMix()">Save / Update</button></div>
+  <div class="box"><button onclick="deleteMix()">Delete</button></div>
   <div class="box"></div>
 </div>
 
 <h3>Excel Import / Export</h3>
 
 <div class="row">
-  <div class="box">
-    <button onclick="exportCSV()">Export CSV</button>
-  </div>
-  <div class="box">
-    <input type="file" accept=".csv" onchange="importCSV(event)">
-  </div>
+  <div class="box"><button onclick="exportCSV()">Export CSV</button></div>
+  <div class="box"><input type="file" accept=".csv" onchange="importCSV(event)"></div>
   <div class="box"></div>
 </div>
 
-<!-- ✅ LOAD APP LOGIC -->
+<!-- ✅ THIS IS THE IMPORTANT LINE -->
 <script src="app.js"></script>
 
-<!-- ✅ SERVICE WORKER -->
 <script>
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("service-worker.js");
