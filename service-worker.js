@@ -1,4 +1,4 @@
-const CACHE_NAME = "tank-mixes-v2";
+const CACHE_NAME = "tank-mixes-v3";
 const FILES = ["./", "./index.html", "./app.js"];
 
 self.addEventListener("install", e => {

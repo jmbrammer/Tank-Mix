@@ -1,16 +1,16 @@
 let autoRecalc = true;
 
-/* ---------- Helpers ---------- */
+/* ---------- Utilities ---------- */
 function round(v, d = 2) {
   return Math.round(v * 10 ** d) / 10 ** d;
 }
 
-/* Liquid normalization to gallons */
+/* Normalize liquids to gallons */
 function normalizeToGallons(value, unit) {
-  if (unit === "fl oz") return value / 128;
+  if (unit === "floz") return value / 128;
   if (unit === "qt") return value / 4;
   if (unit === "gal") return value;
-  return value; // dry units: oz, lbs
+  return value; // dry: oz, lbs
 }
 
 /* ---------- Mode ---------- */
@@ -51,7 +51,7 @@ function cascadeJugs(gallons, start) {
   if (j1) { out.push(`${j1} × 1g`); flOz -= j1 * 128; }
 
   flOz = Math.round(flOz);
-  if (flOz) out.push(`${flOz} fl oz`);
+  if (flOz) out.push(`${flOz} floz`);
 
   return out.join("<br>");
 }
@@ -87,7 +87,7 @@ function addRow(data = {}) {
       <select onchange="if(autoRecalc) recalc()">
         <option ${data.unit==="gal"?"selected":""}>gal</option>
         <option ${data.unit==="qt"?"selected":""}>qt</option>
-        <option ${data.unit==="fl oz"?"selected":""}>fl oz</option>
+        <option ${data.unit==="floz"?"selected":""}>floz</option>
         <option ${data.unit==="oz"?"selected":""}>oz</option>
         <option ${data.unit==="lbs"?"selected":""}>lbs</option>
       </select>
@@ -165,7 +165,7 @@ function recalc() {
 /* ---------- Google Sheet Sync ---------- */
 async function syncFromSheet() {
   const url = sheetUrlEl.value.trim();
-  if (!url) { alert("Enter a Google Sheet URL first"); return; }
+  if (!url) { alert("Enter a Google Sheet Web App URL"); return; }
 
   localStorage.setItem("sheetUrl", url);
 

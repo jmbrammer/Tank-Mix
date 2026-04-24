@@ -94,7 +94,7 @@
 
 <h2>Tank Mix Calculator</h2>
 
-<!-- INPUT ROW -->
+<!-- ROW 1: INPUTS -->
 <div class="row">
   <div class="box">
     <label>Acres to Mix</label>
@@ -112,7 +112,7 @@
   </div>
 </div>
 
-<!-- DERIVED ROW -->
+<!-- ROW 2: DERIVED -->
 <div class="row">
   <div class="box">
     <label>Gallons to Mix</label>
@@ -165,7 +165,6 @@
 
 <button onclick="deleteMix()">Delete Selected Mix</button>
 
-<!-- ✅ GOOGLE SHEET SYNC MOVED TO BOTTOM -->
 <h3>Google Sheet Sync</h3>
 
 <div class="row">
@@ -181,6 +180,7 @@
 <!-- ✅ LOAD APP LOGIC -->
 <script src="app.js"></script>
 
+<!-- ✅ SERVICE WORKER -->
 <script>
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("service-worker.js");
