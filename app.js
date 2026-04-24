@@ -5,11 +5,12 @@ function round(v, d = 2) {
   return Math.round(v * 10 ** d) / 10 ** d;
 }
 
+/* Liquid normalization to gallons */
 function normalizeToGallons(value, unit) {
   if (unit === "fl oz") return value / 128;
   if (unit === "qt") return value / 4;
   if (unit === "gal") return value;
-  return value; // dry units
+  return value; // dry units: oz, lbs
 }
 
 /* ---------- Mode ---------- */
@@ -65,7 +66,7 @@ const derivedAcresEl = derivedAcres;
 const rowsEl = rows;
 const mixSelect = document.getElementById("mixSelect");
 const sheetUrlEl = document.getElementById("sheetUrl");
-const autoBtn = autoBtn;
+const autoBtn = document.getElementById("autoBtn");
 
 /* ---------- Auto Recalc ---------- */
 function toggleAutoRecalc() {
@@ -84,9 +85,10 @@ function addRow(data = {}) {
     <td><input type="number" step="0.01" value="${data.rate||""}" oninput="if(autoRecalc) recalc()"></td>
     <td>
       <select onchange="if(autoRecalc) recalc()">
-        <option ${data.unit==="fl oz"?"selected":""}>fl oz</option>
-        <option ${data.unit==="qt"?"selected":""}>qt</option>
         <option ${data.unit==="gal"?"selected":""}>gal</option>
+        <option ${data.unit==="qt"?"selected":""}>qt</option>
+        <option ${data.unit==="fl oz"?"selected":""}>fl oz</option>
+        <option ${data.unit==="oz"?"selected":""}>oz</option>
         <option ${data.unit==="lbs"?"selected":""}>lbs</option>
       </select>
     </td>
@@ -148,7 +150,6 @@ function recalc() {
       : rate * (mixGal / 100);
 
     const amt = normalizeToGallons(base, unit);
-
     row.children[5].textContent = round(amt);
 
     if (unit === "lbs" && name.includes("ams")) {
@@ -172,7 +173,6 @@ async function syncFromSheet() {
   const data = await res.json();
 
   const index = [];
-
   data.mixes.forEach(m => {
     localStorage.setItem("mix_" + m.mixId, JSON.stringify(m));
     index.push({ mixId: m.mixId, mixName: m.mixName });
@@ -198,7 +198,8 @@ function deleteMix() {
   const id = mixSelect.value;
   if (!id) return;
   localStorage.removeItem("mix_" + id);
-  localStorage.setItem("mixIndex",
+  localStorage.setItem(
+    "mixIndex",
     JSON.stringify(JSON.parse(localStorage.getItem("mixIndex")||"[]")
       .filter(m => m.mixId !== id))
   );
