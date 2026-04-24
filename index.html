@@ -41,7 +41,7 @@
     background-color: #f3f3f3;
   }
 
-  /* ---------------- DESKTOP / TABLET TABLE ---------------- */
+  /* ---------- DESKTOP / TABLET TABLE ---------- */
 
   table {
     width: 100%;
@@ -81,7 +81,7 @@
   th:nth-child(6), td:nth-child(6) { width: 14%; }
   th:nth-child(7), td:nth-child(7) { width: 20%; }
 
-  /* ---------------- iPHONE NARROW LAYOUT ---------------- */
+  /* ---------- iPHONE NARROW LAYOUT ---------- */
 
   @media (max-width: 480px) {
 
@@ -169,3 +169,73 @@
 </div>
 
 <div>
+  <strong>Mode:</strong> <span id="mode"></span>
+</div>
+
+<h3>Ingredients</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Rate</th>
+      <th>Unit</th>
+      <th>Basis</th>
+      <th>Jug</th>
+      <th>Amount</th>
+      <th>Breakdown</th>
+    </tr>
+  </thead>
+  <tbody id="rows"></tbody>
+</table>
+
+<button onclick="addRow()">Add Ingredient</button>
+
+<div style="margin:16px 0;">
+  <button id="autoBtn" onclick="toggleAutoRecalc()">Auto‑Recalculate: ON</button>
+</div>
+
+<h3>Saved Mixes</h3>
+
+<div class="row">
+  <div class="box">
+    <select id="mixSelect"></select>
+  </div>
+
+  <div class="box">
+    <input id="mixName" placeholder="New mix name">
+  </div>
+</div>
+
+<div class="row">
+  <div class="box">
+    <button onclick="saveMix()">Save / Update</button>
+  </div>
+  <div class="box">
+    <button onclick="deleteMix()">Delete</button>
+  </div>
+</div>
+
+<h3>Excel Import / Export</h3>
+
+<div class="row">
+  <div class="box">
+    <button onclick="exportCSV()">Export CSV</button>
+  </div>
+  <div class="box">
+    <input type="file" accept=".csv" onchange="importCSV(event)">
+  </div>
+</div>
+
+<!-- ✅ LOAD APPLICATION LOGIC -->
+<script src="app.js"></script>
+
+<!-- ✅ SERVICE WORKER REGISTRATION -->
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js");
+}
+</script>
+
+</body>
+</html>
