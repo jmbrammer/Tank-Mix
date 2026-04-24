@@ -25,7 +25,9 @@
 
   button { font-weight: bold; cursor: pointer; }
 
-  .readonly { background: #f3f3f3; }
+  .readonly { background-color: #f3f3f3; }
+
+  /* ---------- TABLE ---------- */
 
   table {
     width: 100%;
@@ -47,10 +49,11 @@
 
   tbody tr:nth-child(odd) { background: #fafafa; }
   tbody tr:nth-child(even) { background: #f0f0f0; }
-
   tbody tr:hover { background: #e8f4ff; }
 
   .output { font-weight: bold; }
+
+  /* ---------- iPHONE NARROW ---------- */
 
   @media (max-width: 480px) {
     .row { flex-direction: column; }
@@ -96,31 +99,37 @@
 
 <h2>Tank Mix Calculator</h2>
 
+<!-- ROW 1: INPUTS -->
 <div class="row">
-  <div class="box">
-    <label>GPA</label>
-    <input id="gpa" type="number" step="0.01">
-  </div>
   <div class="box">
     <label>Acres to Mix</label>
     <input id="acres" type="number" step="0.01">
   </div>
+
   <div class="box">
     <label>Gallons to Load</label>
     <input id="gallons" type="number" step="0.01">
   </div>
+
+  <div class="box">
+    <label>GPA</label>
+    <input id="gpa" type="number" step="0.01">
+  </div>
 </div>
 
+<!-- ROW 2: DERIVED -->
 <div class="row">
   <div class="box">
     <label>Gallons to Mix</label>
     <input id="mixGallons" class="readonly" disabled>
   </div>
+
   <div class="box">
     <label>Acres to Load</label>
     <input id="derivedAcres" class="readonly" disabled>
   </div>
-  <div class="box"></div>
+
+  <div class="box"><!-- spacer for alignment --></div>
 </div>
 
 <div><strong>Mode:</strong> <span id="mode"></span></div>
@@ -170,9 +179,10 @@
   <div class="box"></div>
 </div>
 
-<!-- ✅ THIS IS THE IMPORTANT LINE -->
+<!-- ✅ LOAD APP LOGIC -->
 <script src="app.js"></script>
 
+<!-- ✅ SERVICE WORKER -->
 <script>
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("service-worker.js");
