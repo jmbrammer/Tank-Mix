@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>Tank Mix Calculator</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <style>
   body { font-family: Arial, sans-serif; padding: 16px; }
   .row { display: flex; gap: 16px; margin-bottom: 12px; }
@@ -12,7 +13,7 @@
   table { width: 100%; border-collapse: collapse; margin-top: 12px; }
   th, td { border: 1px solid #ccc; padding: 6px; text-align: center; }
   .output { font-weight: bold; }
-  .readonly { background: #f3f3f3; }
+  .readonly { background: #f0f0f0; }
 </style>
 </head>
 
@@ -41,7 +42,7 @@
 
 <div class="row">
   <div class="box">
-    <label>Gallons to Load</label>
+    <label>Gallons Sprayed</label>
     <input id="gallons" type="number" step="0.01">
   </div>
   <div class="box">
@@ -54,15 +55,13 @@
   <strong>Mode:</strong> <span id="mode"></span>
 </div>
 
-<!-- INGREDIENTS -->
-<h3>Ingredients</h3>
-
-<div style="margin-bottom:10px;">
-  <button id="autoBtn" onclick="toggleAutoRecalc()">
-    Auto‑Recalculate: ON
-  </button>
+<!-- AUTO RECALC -->
+<div style="margin:12px 0;">
+  <button id="autoBtn" onclick="toggleAutoRecalc()">Auto‑Recalculate: ON</button>
 </div>
 
+<!-- INGREDIENTS -->
+<h3>Ingredients</h3>
 <table>
 <thead>
 <tr>
@@ -82,7 +81,6 @@
 
 <!-- MIX MANAGEMENT -->
 <h3>Saved Mixes</h3>
-
 <div class="row">
   <div class="box">
     <select id="mixSelect"></select>
@@ -97,6 +95,24 @@
   <div class="box"><button onclick="deleteMix()">Delete</button></div>
 </div>
 
+<!-- EXCEL -->
+<h3>Excel Import / Export</h3>
+<div class="row">
+  <div class="box"><button onclick="exportCSV()">Export CSV</button></div>
+  <div class="box">
+    <input type="file" accept=".csv" onchange="importCSV(event)">
+  </div>
+</div>
+
 <script src="app.js"></script>
+
+<!-- SERVICE WORKER -->
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js");
+}
+</script>
+
 </body>
 </html>
+``

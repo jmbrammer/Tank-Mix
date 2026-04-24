@@ -289,3 +289,48 @@ updateAutoBtn();
 addRow();
 refreshMixList();
 recalc();
+
+
+function exportCSV() {
+  let csv = "Name,Rate,Unit,Basis,Jug\n";
+
+  [...rowsEl.children].forEach(r => {
+    const vals = [
+      r.children[0].querySelector("input").value,
+      r.children[1].querySelector("input").value,
+      r.children[2].querySelector("select").value,
+      r.children[3].querySelector("select").value,
+      r.children[4].querySelector("select").value
+    ];
+    csv += vals.join(",") + "\n";
+  });
+
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "tank-mix.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importCSV(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    const lines = reader.result.split("\n").slice(1);
+    rowsEl.innerHTML = "";
+
+    lines.forEach(line => {
+      if (!line.trim()) return;
+      const [name, rate, unit, basis, jug] = line.split(",");
+      addRow({ name, rate, unit, basis, jug });
+    });
+
+    recalc();
+  };
+  reader.readAsText(file);
+}
