@@ -1,4 +1,4 @@
-const CACHE_NAME = "tank-mixes-v1";
+const CACHE_NAME = "tank-mixes-v2";
 
 const FILES_TO_CACHE = [
   "./",
