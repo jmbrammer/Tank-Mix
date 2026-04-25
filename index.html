@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
 <title>Tank Mix Calculator</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <style>
   body { font-family: Arial, sans-serif; padding: 16px; }
   h2, h3 { margin: 20px 0 8px; }
 
-  .row { display: flex; gap: 16px; margin-bottom: 12px; }
+  .row { display: flex; gap: 12px; margin-bottom: 12px; }
   .box { flex: 1; }
 
   input, select, button {
@@ -27,20 +27,13 @@
     margin-top: 12px;
   }
 
-  thead th {
-    background: #e5e5e5;
-    border: 1px solid #bbb;
-    padding: 10px 6px;
-  }
-
-  tbody td {
+  th, td {
     border: 1px solid #ccc;
-    padding: 10px 6px;
+    padding: 6px;
     text-align: center;
   }
 
-  tbody tr:nth-child(odd) { background: #fafafa; }
-  tbody tr:nth-child(even) { background: #f0f0f0; }
+  th { background: #e5e5e5; }
 </style>
 </head>
 
@@ -51,26 +44,26 @@
 <div class="row">
   <div class="box">
     <label>Acres to Mix</label>
-    <input id="acres">
+    <input id="acres" />
   </div>
   <div class="box">
     <label>Gallons to Load</label>
-    <input id="gallons">
+    <input id="gallons" />
   </div>
   <div class="box">
     <label>GPA</label>
-    <input id="gpa">
+    <input id="gpa" />
   </div>
 </div>
 
 <div class="row">
   <div class="box">
     <label>Gallons to Mix</label>
-    <input id="mixGallons" class="readonly" disabled>
+    <input id="mixGallons" class="readonly" disabled />
   </div>
   <div class="box">
     <label>Acres to Load</label>
-    <input id="derivedAcres" class="readonly" disabled>
+    <input id="derivedAcres" class="readonly" disabled />
   </div>
 </div>
 
@@ -81,8 +74,13 @@
 <table>
   <thead>
     <tr>
-      <th>Name</th><th>Rate</th><th>Unit</th><th>Basis</th>
-      <th>Jug</th><th>Amount</th><th>Breakdown</th>
+      <th>Name</th>
+      <th>Rate</th>
+      <th>Unit</th>
+      <th>Basis</th>
+      <th>Jug</th>
+      <th>Amount (gal)</th>
+      <th>Breakdown</th>
     </tr>
   </thead>
   <tbody id="rows"></tbody>
@@ -94,11 +92,13 @@
 </div>
 
 <div class="row">
-  <div class="box"><button id="autoBtn" onclick="toggleAutoRecalc()">Auto‑Recalculate: ON</button></div>
+  <div class="box">
+    <button id="autoBtn" onclick="toggleAutoRecalc()">Auto‑Recalculate: ON</button>
+  </div>
 </div>
 
-<h3>Import Mixes (Excel / Google Sheets)</h3>
-<input type="file" accept=".xlsx" onchange="importExcelFile(this.files[0])">
+<h3>Import (Excel / Google Sheets)</h3>
+<input type="file" accept=".xlsx" onchange="importExcelFile(this.files[0])" />
 
 <h3>Saved Mixes</h3>
 
@@ -107,36 +107,21 @@
 <div class="row">
   <div class="box">
     <label>Mix Name</label>
-    <input id="mixName" placeholder="Enter mix name">
+    <input id="mixName" placeholder="Enter mix name" />
   </div>
 </div>
 
 <div class="row">
-  <div class="box">
-    <button onclick="newMix()">New Mix</button>
-  </div>
-  <div class="box">
-    <button onclick="saveCurrentMix()">Save / Update Mix</button>
-  </div>
-  <div class="box">
-    <button onclick="deleteMix()">Delete Mix</button>
-  </div>
+  <div class="box"><button onclick="newMix()">New Mix</button></div>
+  <div class="box"><button onclick="saveCurrentMix()">Save / Update Mix</button></div>
+  <div class="box"><button onclick="deleteMix()">Delete Mix</button></div>
 </div>
 
-
-<!-- XLSX library (must load first) -->
-https://unpkg.com/xlsx/dist/xlsx.full.min.js</script>
+<!-- XLSX MUST LOAD FIRST -->
+<script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
 
 <!-- App logic -->
 <script src="app.js"></script>
 
-<!-- service worker temporarily disabled during dev -->
-<!--
-<script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("service-worker.js");
-}
-</script>
--->
 </body>
 </html>
