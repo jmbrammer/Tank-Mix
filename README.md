@@ -9,7 +9,9 @@ Upload the Excel file into the Tank Mix App
 ✅ Workbook Rules
 
 Each sheet = one tank mix
+
 Sheet name = mix name
+
 Do not rename columns or move rows
 
 
@@ -18,9 +20,13 @@ Do not rename columns or move rows
 
 
 CellMeaning
-B2GPA
-B3Acres to Mix (optional)
-B4Gallons to Load (optional)
+
+B2  GPA
+
+B3  Acres to Mix (optional)
+
+B4  Gallons to Load (optional)
+
 Fill only one of B3 or B4.
 
 ✅ Ingredient Table (start at Row 7)
