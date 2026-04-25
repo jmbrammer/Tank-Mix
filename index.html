@@ -25,7 +25,7 @@
 
   button { font-weight: bold; cursor: pointer; }
 
-  .readonly { background-color: #f3f3f3; }
+  .readonly { background: #f3f3f3; }
 
   table {
     width: 100%;
@@ -47,45 +47,11 @@
 
   tbody tr:nth-child(odd) { background: #fafafa; }
   tbody tr:nth-child(even) { background: #f0f0f0; }
-  tbody tr:hover { background: #e8f4ff; }
 
   .output { font-weight: bold; }
 
   @media (max-width: 480px) {
     .row { flex-direction: column; }
-
-    table, thead, tbody, tr, th, td {
-      display: block;
-      width: 100%;
-    }
-
-    thead { display: none; }
-
-    tbody tr {
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      padding: 10px;
-      margin-bottom: 12px;
-      background: white;
-    }
-
-    tbody td {
-      border: none;
-      text-align: left;
-    }
-
-    tbody td::before {
-      font-weight: bold;
-      display: block;
-    }
-
-    tbody td:nth-child(1)::before { content: "Name"; }
-    tbody td:nth-child(2)::before { content: "Rate"; }
-    tbody td:nth-child(3)::before { content: "Unit"; }
-    tbody td:nth-child(4)::before { content: "Basis"; }
-    tbody td:nth-child(5)::before { content: "Jug"; }
-    tbody td:nth-child(6)::before { content: "Amount"; }
-    tbody td:nth-child(7)::before { content: "Breakdown"; }
   }
 </style>
 </head>
@@ -94,7 +60,7 @@
 
 <h2>Tank Mix Calculator</h2>
 
-<!-- ROW 1: INPUTS -->
+<!-- INPUT ROW -->
 <div class="row">
   <div class="box">
     <label>Acres to Mix</label>
@@ -112,7 +78,7 @@
   </div>
 </div>
 
-<!-- ROW 2: DERIVED -->
+<!-- DERIVED -->
 <div class="row">
   <div class="box">
     <label>Gallons to Mix</label>
@@ -156,36 +122,20 @@
   <button id="autoBtn" onclick="toggleAutoRecalc()">Auto‑Recalculate: ON</button>
 </div>
 
+<h3>Import Mixes (Excel / Google Sheets)</h3>
+
+<input type="file" accept=".xlsx" onchange="importExcelFile(this.files[0])">
+
 <h3>Saved Mixes</h3>
 
-<div class="row">
-  <div class="box"><select id="mixSelect"></select></div>
-  <div class="box"></div>
-</div>
-
+<select id="mixSelect"></select>
 <button onclick="deleteMix()">Delete Selected Mix</button>
 
-<h3>Google Sheet Sync</h3>
+<!-- Excel parser -->
+<script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
 
-<div class="row">
-  <div class="box">
-    <label>Google Sheet Web App URL</label>
-    <input id="sheetUrl" placeholder="Paste Apps Script URL here">
-  </div>
-  <div class="box">
-    <button onclick="syncFromSheet()">Sync from Sheet</button>
-  </div>
-</div>
-
-<!-- ✅ LOAD APP LOGIC -->
+<!-- App logic -->
 <script src="app.js"></script>
-
-<!-- ✅ SERVICE WORKER -->
-<script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("service-worker.js");
-}
-</script>
 
 </body>
 </html>
