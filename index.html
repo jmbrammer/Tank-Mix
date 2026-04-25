@@ -41,7 +41,6 @@
 
   tbody tr:nth-child(odd) { background: #fafafa; }
   tbody tr:nth-child(even) { background: #f0f0f0; }
-  .output { font-weight: bold; }
 </style>
 </head>
 
@@ -49,23 +48,21 @@
 
 <h2>Tank Mix Calculator</h2>
 
-<!-- INPUT ROW -->
 <div class="row">
   <div class="box">
     <label>Acres to Mix</label>
-    <input id="acres" type="number">
+    <input id="acres">
   </div>
   <div class="box">
     <label>Gallons to Load</label>
-    <input id="gallons" type="number">
+    <input id="gallons">
   </div>
   <div class="box">
     <label>GPA</label>
-    <input id="gpa" type="number">
+    <input id="gpa">
   </div>
 </div>
 
-<!-- DERIVED -->
 <div class="row">
   <div class="box">
     <label>Gallons to Mix</label>
@@ -77,18 +74,15 @@
   </div>
 </div>
 
+<div><strong>Mode:</strong> <span id="mode"></span></div>
+
 <h3>Ingredients</h3>
 
 <table>
   <thead>
     <tr>
-      <th>Name</th>
-      <th>Rate</th>
-      <th>Unit</th>
-      <th>Basis</th>
-      <th>Jug</th>
-      <th>Amount</th>
-      <th>Breakdown</th>
+      <th>Name</th><th>Rate</th><th>Unit</th><th>Basis</th>
+      <th>Jug</th><th>Amount</th><th>Breakdown</th>
     </tr>
   </thead>
   <tbody id="rows"></tbody>
@@ -99,18 +93,23 @@
   <div class="box"><button onclick="removeLastRow()">Remove Last</button></div>
 </div>
 
-<h3>Import Mixes (Excel / Google Sheets)</h3>
+<div class="row">
+  <div class="box"><button id="autoBtn" onclick="toggleAutoRecalc()">Auto‑Recalculate: ON</button></div>
+</div>
 
+<h3>Import Mixes (Excel / Google Sheets)</h3>
 <input type="file" accept=".xlsx" onchange="importExcelFile(this.files[0])">
 
 <h3>Saved Mixes</h3>
 <select id="mixSelect"></select>
-<button onclick="deleteMix()">Delete Selected Mix</button>
 
-<!-- ✅ XLSX LIBRARY (FIXED) -->
+<div class="row">
+  <div class="box"><button onclick="saveCurrentMix()">Save / Update Mix</button></div>
+  <div class="box"><button onclick="deleteMix()">Delete Mix</button></div>
+</div>
+
+<!-- ✅ XLSX -->
 <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
-
-<!-- ✅ APP LOGIC (FIXED) -->
 <script src="app.js"></script>
 
 </body>
