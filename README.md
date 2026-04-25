@@ -17,152 +17,104 @@ Do not rename columns or move rows
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-CellMeaningB2GPAB3Acres to Mix (optional)B4Gallons to Load (optional)
+CellMeaning
+B2GPA
+B3Acres to Mix (optional)
+B4Gallons to Load (optional)
 Fill only one of B3 or B4.
 
 ✅ Ingredient Table (start at Row 7)
 
 
 
+Column Label Example
 
+A - Name - Roundup
 
+B - Rate - 32
 
+C - Unit - floz
 
+D - Basis - acre
 
+E - Jug - 2.5
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-ColumnLabelExampleANameRoundupBRate32CUnitflozDBasisacreEJug2.5
 
 ✅ Allowed Units
 
 
 
+Unit Meaning
+
+
+gal = Gallons
 
 
 
+qt = Quarts
 
 
 
+floz = Fluid ounces
 
 
 
+oz = Dry ounces
 
 
 
+lbs = Pounds
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-UnitMeaninggalGallonsqtQuartsflozFluid ouncesozDry ounceslbsPounds
 ⚠️ Use floz, not fl oz.
+
+
 
 ✅ Basis
 
 
+Value Meaning 
 
 
+acre = Per acre 
 
 
+100 = Per 100 gallons
 
 
-
-
-
-
-
-
-
-
-
-ValueMeaningacrePer acre100Per 100 gallons
 
 ✅ Jug
 
 
+Value Meaning
 
 
+2.5 = 2.5 → 1 → floz cascade
 
 
+1 = 1 → floz cascade
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-ValueMeaning2.52.5 → 1 → floz cascade11 → floz cascadeblankno jug math
+blank = no jug math
 
 🚫 Do Not Use
 
 Formulas
+
 Extra header rows
+
 Merged cells
+
 Totals
 
 
 ✅ Example Ingredient Section
-Name        Rate   Unit   Basis   Jug
-Roundup    32     floz   acre    2.5
-AMS        17     lbs    100
-Laudis     3      floz   acre    1
+
+Name      Rate     Unit     Basis     Jug
+
+Roundup      32       floz     acre      2.5
+
+AMS          17       lbs      100
+
+Laudis       3        floz     acre      1
