@@ -14,6 +14,7 @@ const acresEl=acres, gallonsEl=gallons, gpaEl=gpa;
 const mixGalEl=mixGallons, loadAcEl=derivedAcres, modeEl=mode;
 const rowsEl=rows, mixSelect=document.getElementById("mixSelect");
 const autoBtn=document.getElementById("autoBtn");
+const mixNameEl = document.getElementById("mixName");
 
 /* ---------- Auto Recalc ---------- */
 function toggleAutoRecalc(){
@@ -25,31 +26,45 @@ function toggleAutoRecalc(){
 }
 
 /* ---------- Rows ---------- */
-function addRow(d={}){
-  const tr=document.createElement("tr");
-  tr.innerHTML=`
-    <td><input value="${d.name||""}" oninput="autoRecalc&&recalc()"></td>
-    <td><input value="${d.rate||""}" oninput="autoRecalc&&recalc()"></td>
+function addRow(d = {}) {
+  const tr = document.createElement("tr");
+
+  tr.innerHTML = `
     <td>
-      <select onchange="autoRecalc&&recalc()">
-        ${["gal","qt","floz","oz","lbs"].map(u=>`<option ${u===d.unit?"selected":""}>${u}</option>`).join("")}
+      <input value="${d.name || ""}" oninput="autoRecalc && recalc()">
+    </td>
+
+    <td>
+      <input value="${d.rate || ""}" oninput="autoRecalc && recalc()">
+    </td>
+
+    <td>
+      <select onchange="autoRecalc && recalc()">
+        ${["gal","qt","floz","oz","lbs"].map(u =>
+          `<option ${u === d.unit ? "selected" : ""}>${u}</option>`
+        ).join("")}
       </select>
     </td>
+
     <td>
-      <select onchange="autoRecalc&&recalc()">
-        <option value="acre" ${d.basis==="acre"?"selected":""}>acre</option>
-        <option value="100" ${d.basis==="100"?"selected":""}>100</option>
+      <select onchange="autoRecalc && recalc()">
+        <option value="acre" ${d.basis === "acre" ? "selected" : ""}>acre</option>
+        <option value="100" ${d.basis === "100" ? "selected" : ""}>100</option>
       </select>
     </td>
+
     <td>
-      <select onchange="autoRecalc&&recalc()">
+      <select onchange="autoRecalc && recalc()">
         <option value=""></option>
-        <option value="2.5" ${d.jug==="2.5"?"selected":""}>2.5</option>
-        <option value="1" ${d.jug==="1"?"selected":""}>1</option>
+        <option value="2.5" ${d.jug === "2.5" ? "selected" : ""}>2.5</option>
+        <option value="1" ${d.jug === "1" ? "selected" : ""}>1</option>
       </select>
     </td>
+
     <td class="output"></td>
-    <td class="output"></td>`;
+    <td class="output"></td>
+  `;
+
   rowsEl.appendChild(tr);
 }
 function removeLastRow(){ if(rowsEl.lastElementChild) rowsEl.removeChild(rowsEl.lastElementChild); }
@@ -132,22 +147,79 @@ function refreshMixList(){
     mixSelect.appendChild(o);
   });
 }
-function loadSelectedMix(){
-  const m=JSON.parse(localStorage.getItem("mix_"+mixSelect.value));
-  if(!m) return;
-  gpaEl.value=m.gpa||""; acresEl.value=m.acresToMix||""; gallonsEl.value=m.gallonsToLoad||"";
-  rowsEl.innerHTML=""; m.ingredients.forEach(addRow); recalc();
+function loadSelectedMix() {
+  const name = mixSelect.value;
+  const m = JSON.parse(localStorage.getItem("mix_" + name));
+  if (!m) return;
+
+  // Set name
+  mixNameEl.value = m.mixName;
+
+  // Load inputs
+  gpaEl.value = m.gpa || "";
+  acresEl.value = m.acresToMix || "";
+  gallonsEl.value = m.gallonsToLoad || "";
+
+  // Load ingredients
+  rowsEl.innerHTML = "";
+  m.ingredients.forEach(addRow);
+
+  recalc();
 }
-function saveCurrentMix(){
-  const mix={ mixName:mixSelect.value, gpa:gpaEl.value, acresToMix:acresEl.value, gallonsToLoad:gallonsEl.value,
-    ingredients:[...rowsEl.children].map(r=>({
-      name:r.cells[0].querySelector("input").value,
-      rate:r.cells[1].querySelector("input").value,
-      unit:r.cells[2].querySelector("select").value,
-      basis:r.cells[3].querySelector("select").value,
-      jug:r.cells[4].querySelector("select").value
+function saveCurrentMix() {
+  const name = mixNameEl.value.trim();
+  if (!name) {
+    alert("Please enter a mix name.");
+    return;
+  }
+
+  const mix = {
+    mixName: name,
+    gpa: gpaEl.value,
+    acresToMix: acresEl.value,
+    gallonsToLoad: gallonsEl.value,
+    ingredients: [...rowsEl.children].map(r => ({
+      name: r.cells[0].querySelector("input").value,
+      rate: r.cells[1].querySelector("input").value,
+      unit: r.cells[2].querySelector("select").value,
+      basis: r.cells[3].querySelector("select").value,
+      jug: r.cells[4].querySelector("select").value
     }))
   };
-  saveMix(mix); alert("Mix saved");
+
+  saveMix(mix);
+  refreshMixList();
+
+  // Select the saved mix
+  mixSelect.value = name;
+
+  alert("Mix saved");
+}function deleteMix(){
+  const n=mixSelect.value;
+  localStorage.removeItem("mix_"+n);
+  let idx=JSON.parse(localStorage.getItem("mixIndex")||"[]").filter(x=>x!==n);
+  localStorage.setItem("mixIndex",JSON.stringify(idx));
+  refreshMixList();
 }
-function deleteMix(){
+function newMix() {
+  // Clear inputs
+  acresEl.value = "";
+  gallonsEl.value = "";
+  gpaEl.value = "";
+
+  // Clear rows
+  rowsEl.innerHTML = "";
+  addRow();
+
+  // Clear selection
+  mixSelect.selectedIndex = -1;
+
+  // Clear name and focus
+  mixNameEl.value = "";
+  mixNameEl.focus();
+
+  recalc();
+}
+/* ---------- Init ---------- */
+toggleAutoRecalc(); addRow(); refreshMixList();
+mixSelect.onchange=loadSelectedMix;

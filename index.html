@@ -101,16 +101,41 @@
 <input type="file" accept=".xlsx" onchange="importExcelFile(this.files[0])">
 
 <h3>Saved Mixes</h3>
+
 <select id="mixSelect"></select>
 
 <div class="row">
-  <div class="box"><button onclick="saveCurrentMix()">Save / Update Mix</button></div>
-  <div class="box"><button onclick="deleteMix()">Delete Mix</button></div>
+  <div class="box">
+    <label>Mix Name</label>
+    <input id="mixName" placeholder="Enter mix name">
+  </div>
 </div>
 
-<!-- ✅ XLSX -->
+<div class="row">
+  <div class="box">
+    <button onclick="newMix()">New Mix</button>
+  </div>
+  <div class="box">
+    <button onclick="saveCurrentMix()">Save / Update Mix</button>
+  </div>
+  <div class="box">
+    <button onclick="deleteMix()">Delete Mix</button>
+  </div>
+</div>
+
+
+<!-- XLSX library -->
 <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+
+<!-- App logic -->
 <script src="app.js"></script>
+
+<!-- Service worker -->
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js");
+}
+</script>
 
 </body>
 </html>
