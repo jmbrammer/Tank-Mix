@@ -5,12 +5,11 @@ function round(v, d = 2) {
   return Math.round(v * 10 ** d) / 10 ** d;
 }
 
-/* Normalize liquids to gallons */
 function normalizeToGallons(value, unit) {
-  if (unit === "floz") return value / 128;
-  if (unit === "qt") return value / 4;
   if (unit === "gal") return value;
-  return value; // dry: oz, lbs
+  if (unit === "qt") return value / 4;
+  if (unit === "floz") return value / 128;
+  return value; // oz, lbs
 }
 
 /* ---------- Mode ---------- */
@@ -20,13 +19,13 @@ function resolveMode(acres, gallons) {
   return "";
 }
 
-function getDerivedAcres(acres, gallons, gpa) {
+function derivedAcres(acres, gallons, gpa) {
   if (acres > 0) return acres;
   if (gallons > 0 && gpa > 0) return gallons / gpa;
   return 0;
 }
 
-function getMixGallons(acres, gallons, gpa) {
+function mixGallons(acres, gallons, gpa) {
   if (acres > 0) return acres * gpa;
   if (gallons > 0) return gallons;
   return 0;
@@ -37,38 +36,37 @@ function amsBags(lbs) {
   return Math.round((lbs / 51) * 2) / 2;
 }
 
-/* ---------- Jug Cascade ---------- */
-function cascadeJugs(gallons, start) {
-  let flOz = gallons * 128;
+/* ---------- Jug cascade ---------- */
+function cascadeJugs(gal, start) {
+  let floz = gal * 128;
   const out = [];
 
   if (start === 2.5) {
-    const j = Math.floor(flOz / 320);
-    if (j) { out.push(`${j} × 2.5g`); flOz -= j * 320; }
+    const j = Math.floor(floz / 320);
+    if (j) { out.push(`${j} × 2.5g`); floz -= j * 320; }
   }
 
-  const j1 = Math.floor(flOz / 128);
-  if (j1) { out.push(`${j1} × 1g`); flOz -= j1 * 128; }
+  const j1 = Math.floor(floz / 128);
+  if (j1) { out.push(`${j1} × 1g`); floz -= j1 * 128; }
 
-  flOz = Math.round(flOz);
-  if (flOz) out.push(`${flOz} floz`);
+  floz = Math.round(floz);
+  if (floz) out.push(`${floz} floz`);
 
   return out.join("<br>");
 }
 
 /* ---------- DOM ---------- */
-const acresEl = acres;
-const gallonsEl = gallons;
-const gpaEl = gpa;
-const modeEl = mode;
-const mixGallonsEl = mixGallons;
-const derivedAcresEl = derivedAcres;
-const rowsEl = rows;
+const acresEl = document.getElementById("acres");
+const gallonsEl = document.getElementById("gallons");
+const gpaEl = document.getElementById("gpa");
+const mixGallonsEl = document.getElementById("mixGallons");
+const derivedAcresEl = document.getElementById("derivedAcres");
+const modeEl = document.getElementById("mode");
+const rowsEl = document.getElementById("rows");
 const mixSelect = document.getElementById("mixSelect");
-const sheetUrlEl = document.getElementById("sheetUrl");
 const autoBtn = document.getElementById("autoBtn");
 
-/* ---------- Auto Recalc ---------- */
+/* ---------- Auto recalc ---------- */
 function toggleAutoRecalc() {
   autoRecalc = !autoRecalc;
   autoBtn.textContent = autoRecalc ? "Auto‑Recalculate: ON" : "Auto‑Recalculate: OFF";
@@ -82,7 +80,7 @@ function addRow(data = {}) {
   const tr = document.createElement("tr");
   tr.innerHTML = `
     <td><input value="${data.name||""}" oninput="if(autoRecalc) recalc()"></td>
-    <td><input type="number" step="0.01" value="${data.rate||""}" oninput="if(autoRecalc) recalc()"></td>
+    <td><input type="number" value="${data.rate||""}" oninput="if(autoRecalc) recalc()"></td>
     <td>
       <select onchange="if(autoRecalc) recalc()">
         <option ${data.unit==="gal"?"selected":""}>gal</option>
@@ -94,15 +92,15 @@ function addRow(data = {}) {
     </td>
     <td>
       <select onchange="if(autoRecalc) recalc()">
-        <option value="acre" ${data.basis==="acre"?"selected":""}>per acre</option>
-        <option value="100" ${data.basis==="100"?"selected":""}>per 100 gal</option>
+        <option value="acre" ${data.basis==="acre"?"selected":""}>acre</option>
+        <option value="100" ${data.basis==="100"?"selected":""}>100</option>
       </select>
     </td>
     <td>
       <select onchange="if(autoRecalc) recalc()">
         <option value="">none</option>
-        <option value="2.5" ${data.jug==="2.5"?"selected":""}>2.5 gal</option>
-        <option value="1" ${data.jug==="1"?"selected":""}>1 gal</option>
+        <option value="2.5" ${data.jug==="2.5"?"selected":""}>2.5</option>
+        <option value="1" ${data.jug==="1"?"selected":""}>1</option>
       </select>
     </td>
     <td class="output"></td>
@@ -125,85 +123,98 @@ function recalc() {
   acresEl.disabled = gallons > 0;
   gallonsEl.disabled = acres > 0;
 
-  const derived = getDerivedAcres(acres, gallons, gpa);
-  const mixGal = getMixGallons(acres, gallons, gpa);
+  const a = derivedAcres(acres, gallons, gpa);
+  const g = mixGallons(acres, gallons, gpa);
 
-  derivedAcresEl.value = derived ? round(derived) : "";
-  mixGallonsEl.value = mixGal ? round(mixGal) : "";
+  derivedAcresEl.value = a ? round(a) : "";
+  mixGallonsEl.value = g ? round(g) : "";
   modeEl.textContent = resolveMode(acres, gallons);
 
-  [...rowsEl.children].forEach(row => {
-    const name = row.children[0].querySelector("input").value.toLowerCase();
-    const rate = +row.children[1].querySelector("input").value;
-    const unit = row.children[2].querySelector("select").value;
-    const basis = row.children[3].querySelector("select").value;
-    const jug = row.children[4].querySelector("select").value;
+  [...rowsEl.children].forEach(r => {
+    const name = r.children[0].querySelector("input").value.toLowerCase();
+    const rate = +r.children[1].querySelector("input").value;
+    const unit = r.children[2].querySelector("select").value;
+    const basis = r.children[3].querySelector("select").value;
+    const jug = r.children[4].querySelector("select").value;
 
-    if (!rate || !gpa || !mixGal) {
-      row.children[5].textContent = "";
-      row.children[6].innerHTML = "";
+    if (!rate || !gpa || !g) {
+      r.children[5].textContent = "";
+      r.children[6].innerHTML = "";
       return;
     }
 
-    const base = basis === "acre"
-      ? rate * derived
-      : rate * (mixGal / 100);
+    const base = basis === "acre" ? rate * a : rate * (g / 100);
+    const gal = normalizeToGallons(base, unit);
 
-    const amt = normalizeToGallons(base, unit);
-    row.children[5].textContent = round(amt);
+    r.children[5].textContent = round(gal);
 
     if (unit === "lbs" && name.includes("ams")) {
-      row.children[6].textContent = `${amsBags(amt)} bags`;
+      r.children[6].textContent = `${amsBags(gal)} bags`;
     } else if (jug && unit !== "lbs") {
-      row.children[6].innerHTML = cascadeJugs(amt, parseFloat(jug));
-    } else {
-      row.children[6].innerHTML = "";
+      r.children[6].innerHTML = cascadeJugs(gal, parseFloat(jug));
     }
   });
 }
 
-/* ---------- Google Sheet Sync ---------- */
-async function syncFromSheet() {
-  const url = sheetUrlEl.value.trim();
-  if (!url) { alert("Enter a Google Sheet Web App URL"); return; }
+/* ---------- Excel Import ---------- */
+function importExcelFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const wb = XLSX.read(new Uint8Array(e.target.result), { type: "array" });
 
-  localStorage.setItem("sheetUrl", url);
+    wb.SheetNames.forEach(name => {
+      const ws = wb.Sheets[name];
 
-  const res = await fetch(url);
-  const data = await res.json();
+      const mix = {
+        mixName: name,
+        gpa: cell(ws,"B2"),
+        acresToMix: cell(ws,"B3"),
+        gallonsToLoad: cell(ws,"B4"),
+        ingredients: []
+      };
 
-  const index = [];
-  data.mixes.forEach(m => {
-    localStorage.setItem("mix_" + m.mixId, JSON.stringify(m));
-    index.push({ mixId: m.mixId, mixName: m.mixName });
-  });
+      let r = 7;
+      while (cell(ws,`A${r}`)) {
+        mix.ingredients.push({
+          name: cell(ws,`A${r}`),
+          rate: cell(ws,`B${r}`),
+          unit: cell(ws,`C${r}`),
+          basis: cell(ws,`D${r}`),
+          jug: cell(ws,`E${r}`)
+        });
+        r++;
+      }
 
+      saveMix(mix);
+    });
+
+    refreshMixList();
+    alert("Mixes imported");
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function cell(ws, addr) {
+  return ws[addr]?.v || "";
+}
+
+/* ---------- Local Storage ---------- */
+function saveMix(mix) {
+  let index = JSON.parse(localStorage.getItem("mixIndex") || "[]");
+  if (!index.includes(mix.mixName)) index.push(mix.mixName);
   localStorage.setItem("mixIndex", JSON.stringify(index));
-  refreshMixList();
-  alert(`Imported ${index.length} mixes`);
+  localStorage.setItem("mix_" + mix.mixName, JSON.stringify(mix));
 }
 
 function refreshMixList() {
   mixSelect.innerHTML = "";
-  const index = JSON.parse(localStorage.getItem("mixIndex")||"[]");
-  index.forEach(m => {
+  const index = JSON.parse(localStorage.getItem("mixIndex") || "[]");
+  index.forEach(n => {
     const o = document.createElement("option");
-    o.value = m.mixId;
-    o.textContent = m.mixName;
+    o.value = n;
+    o.textContent = n;
     mixSelect.appendChild(o);
   });
-}
-
-function deleteMix() {
-  const id = mixSelect.value;
-  if (!id) return;
-  localStorage.removeItem("mix_" + id);
-  localStorage.setItem(
-    "mixIndex",
-    JSON.stringify(JSON.parse(localStorage.getItem("mixIndex")||"[]")
-      .filter(m => m.mixId !== id))
-  );
-  refreshMixList();
 }
 
 mixSelect.onchange = () => {
@@ -219,8 +230,16 @@ mixSelect.onchange = () => {
   recalc();
 };
 
+function deleteMix() {
+  const name = mixSelect.value;
+  let index = JSON.parse(localStorage.getItem("mixIndex") || "[]")
+    .filter(n => n !== name);
+  localStorage.setItem("mixIndex", JSON.stringify(index));
+  localStorage.removeItem("mix_" + name);
+  refreshMixList();
+}
+
 /* ---------- Init ---------- */
-sheetUrlEl.value = localStorage.getItem("sheetUrl") || "";
 toggleAutoRecalc();
 addRow();
 refreshMixList();
